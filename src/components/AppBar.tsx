@@ -14,9 +14,11 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Logout } from '@mui/icons-material';
 import { logoutAction } from '../redux/actions/authActions';
 import PopupState, { bindTrigger, bindMenu } from 'material-ui-popup-state';
-
+import secureLocalStorage from "react-secure-storage";
+import { ExecuteStoredProcedureAction, getReportDetailsAction } from '../redux/actions/reportActions';
 function ResponsiveAppBar() {
   const masterReport = useSelector((state:any) => state.report?.masterReport);
+  const accessCode = JSON.parse(secureLocalStorage.getItem("accessCode") as string);
   const dispatch = useDispatch();
   const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(null);
   const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
@@ -35,7 +37,34 @@ function ResponsiveAppBar() {
   const logout = () => {
     dispatch(logoutAction())
   };
-
+  const handleMenuClick = async (reportName: any,popupClose: () => void) => {
+    debugger
+    popupClose();
+    const reportId = reportName.ReportId;
+    const result =  await dispatch(getReportDetailsAction(accessCode, reportId));  // Pass accessCode and reportId directly
+    debugger
+    if (result?.data) {
+      const details = result.data;
+ 
+      const requestBody = {
+        parameters: JSON.stringify({
+          "@idCenter": 2002,
+          "@PaymentMode": "Cheque",
+          "@strDateFrom": "01-10-2024",
+          "@strDateTo": "20-10-2024",
+        }),
+      };
+     const spresult = await dispatch(ExecuteStoredProcedureAction(accessCode, reportName.StoredProcedureName,requestBody));
+     if (spresult?.data) {
+      
+    }
+    } else if (result?.error) {
+      console.error("Error fetching report details:", result.error);
+    }
+    
+  };
+  
+  
   return (
     <AppBar position="static" color='transparent'>
       <Container maxWidth="xl">
@@ -95,7 +124,7 @@ function ResponsiveAppBar() {
                       </Button>
                       <Menu {...bindMenu(popupState)}>
                         {page.ChildItems.map((item:any)=>
-                            <MenuItem onClick={popupState.close} key={item.ReportName}>{item.ReportName}
+                            <MenuItem onClick={() => handleMenuClick(item,popupState.close)} key={item.ReportName}>{item.ReportName}
                             </MenuItem>
                         )}
                       </Menu>
@@ -134,7 +163,7 @@ function ResponsiveAppBar() {
                   </Button>
                   <Menu {...bindMenu(popupState)}>
                     {page.ChildItems.map((item:any)=>
-                        <MenuItem onClick={popupState.close} key={item.ReportName}>{item.ReportName}
+                        <MenuItem onClick={() => handleMenuClick(item,popupState.close)}  key={item.ReportName}>{item.ReportName}
                         </MenuItem>
                     )}
                   </Menu>
