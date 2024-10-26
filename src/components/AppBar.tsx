@@ -5,10 +5,6 @@ import Toolbar from '@mui/material/Toolbar';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import Menu from '@mui/material/Menu';
-import MenuIcon from '@mui/icons-material/Menu';
-import Container from '@mui/material/Container';
-import Button from '@mui/material/Button';
-import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import { useDispatch, useSelector } from 'react-redux';
 import { Logout } from '@mui/icons-material';
@@ -16,173 +12,105 @@ import { logoutAction } from '../redux/actions/authActions';
 import PopupState, { bindTrigger, bindMenu } from 'material-ui-popup-state';
 import secureLocalStorage from "react-secure-storage";
 import { ExecuteStoredProcedureAction, getReportDetailsAction } from '../redux/actions/reportActions';
+
 function ResponsiveAppBar() {
-  const masterReport = useSelector((state:any) => state.report?.masterReport);
+  const masterReport = useSelector((state: any) => state.report?.masterReport);
   const accessCode = JSON.parse(secureLocalStorage.getItem("accessCode") as string);
   const dispatch = useDispatch();
-  const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(null);
-  const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
 
-  const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorElNav(event.currentTarget);
-  };
-  const handleOpenUserMenu = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorElUser(event.currentTarget);
-  };
-
-  const handleCloseNavMenu = () => {
-    setAnchorElNav(null);
-  };
-
-  const logout = () => {
-    dispatch(logoutAction())
-  };
-  const handleMenuClick = async (reportName: any,popupClose: () => void) => {
-    debugger
+  const handleMenuClick = async (reportName: any, popupClose: () => void) => {
     popupClose();
     const reportId = reportName.ReportId;
-    const result =  await dispatch(getReportDetailsAction(accessCode, reportId));  // Pass accessCode and reportId directly
-    debugger
-    if (result?.data) {
-      const details = result.data;
- 
-      const requestBody = {
-        parameters: JSON.stringify({
-          "@idCenter": 2002,
-          "@PaymentMode": "Cheque",
-          "@strDateFrom": "01-10-2024",
-          "@strDateTo": "20-10-2024",
-        }),
-      };
-     const spresult = await dispatch(ExecuteStoredProcedureAction(accessCode, reportName.StoredProcedureName,requestBody));
-     if (spresult?.data) {
-      
-    }
+    const result = await dispatch(getReportDetailsAction(accessCode, reportId));
+    if (result?.data) {   
     } else if (result?.error) {
       console.error("Error fetching report details:", result.error);
     }
-    
   };
-  
-  
-  return (
-    <AppBar position="static" color='transparent'>
-      <Container maxWidth="xl">
-        <Toolbar disableGutters>
-          <Typography
-            variant="h6"
-            noWrap
-            component="a"
-            href="#app-bar-with-responsive-menu"
-            sx={{
-              mr: 2,
-              display: { xs: 'none', md: 'flex' },
-              fontFamily: 'monospace',
-              fontWeight: 700,
-              color: 'blue',
-              textDecoration: 'none',
-            }}
-          >
-            PROMEDIS REPORTS
-          </Typography>
 
-          <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
-            <IconButton
-              size="large"
-              aria-label="account of current user"
-              aria-controls="menu-appbar"
-              aria-haspopup="true"
-              onClick={handleOpenNavMenu}
-              color="inherit"
-            >
-              <MenuIcon />
-            </IconButton>
-            <Menu
-              id="menu-appbar"
-              anchorEl={anchorElNav}
-              anchorOrigin={{
-                vertical: 'bottom',
-                horizontal: 'left',
-              }}
-              keepMounted
-              transformOrigin={{
-                vertical: 'top',
-                horizontal: 'left',
-              }}
-              open={Boolean(anchorElNav)}
-              onClose={handleCloseNavMenu}
-              sx={{ display: { xs: 'block', md: 'none' } }}
-            >
-              {masterReport && masterReport.map((page:any) => (
-                <MenuItem key={page.ReportName} onClick={handleCloseNavMenu}>
-                  {/* <Typography sx={{ textAlign: 'center' }}>{page.ReportName}<KeyboardArrowDown/></Typography> */}
-                  <PopupState variant="popover" popupId="demo-popup-menu">
-                  {(popupState:any) => (
-                    <React.Fragment>
-                      <Button variant="contained" {...bindTrigger(popupState)}>
-                         {page.ReportName}
-                      </Button>
-                      <Menu {...bindMenu(popupState)}>
-                        {page.ChildItems.map((item:any)=>
-                            <MenuItem onClick={() => handleMenuClick(item,popupState.close)} key={item.ReportName}>{item.ReportName}
-                            </MenuItem>
-                        )}
-                      </Menu>
-                    </React.Fragment>
-                  )}
-                </PopupState>
-                </MenuItem>
-              ))}
-            </Menu>
-          </Box>
-          <Typography
-            variant="h5"
-            noWrap
-            component="a"
-            href="#app-bar-with-responsive-menu"
-            sx={{
-              mr: 2,
-              display: { xs: 'flex', md: 'none' },
-              flexGrow: 1,
-              fontFamily: 'monospace',
-              fontWeight: 700,
-              color: 'blue',
-              textDecoration: 'none',
-            }}
-          >
-            PROMEDIS REPORTS
-          </Typography>
-          <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
-            {masterReport && masterReport.map((page:any) => (
-              <MenuItem key={page.ReportName} onClick={handleCloseNavMenu}>
-              <PopupState variant="popover" popupId="demo-popup-menu">
-              {(popupState:any) => (
+  const logout = () => {
+    dispatch(logoutAction());
+  };
+
+  return (
+    <AppBar position="static" sx={{
+      backgroundColor: '#007B8F',
+      padding: 0, 
+    }}>
+    <Toolbar
+        sx={{
+          minHeight: '40px',
+          paddingLeft: 1,
+          paddingRight: 1,
+          '@media (min-width: 600px)': {
+            minHeight: '50px', 
+          },
+        }}
+      >
+    
+        <Box sx={{ display: 'flex', gap: 2 }}>
+          {masterReport && masterReport.map((page: any) => (
+            <PopupState variant="popover" popupId={`menu-popup-${page.ReportName}`} key={page.ReportName}>
+              {(popupState) => (
                 <React.Fragment>
-                  <Button variant="contained" {...bindTrigger(popupState)}>
-                     {page.ReportName}
-                  </Button>
+                  <Typography
+                    variant="body1"
+                    sx={{
+                      color: 'white',
+                      cursor: 'pointer',
+                      fontFamily: 'Arial', 
+                      fontSize: '15px', 
+                      fontWeight: 500,
+                      px: 2,
+                      '&:hover': { textDecoration: 'underline' },
+                    }}
+                    {...bindTrigger(popupState)}
+                  >
+                    {page.ReportName}
+                  </Typography>
                   <Menu {...bindMenu(popupState)}>
-                    {page.ChildItems.map((item:any)=>
-                        <MenuItem onClick={() => handleMenuClick(item,popupState.close)}  key={item.ReportName}>{item.ReportName}
-                        </MenuItem>
-                    )}
+                    {page.ChildItems.map((item: any) => (
+                      <MenuItem
+                      key={item.ReportName}
+                      onClick={() => handleMenuClick(item, popupState.close)}
+                      sx={{
+                        fontFamily: 'Arial', 
+                        fontSize: '10px', 
+                        fontWeight: 400,  
+                        color: '#000', 
+                      }}
+                    >
+                        {item.ReportName}
+                      </MenuItem>
+                    ))}
                   </Menu>
                 </React.Fragment>
               )}
             </PopupState>
-            </MenuItem>
-            ))}
-          </Box>
-          <Box sx={{ flexGrow: 0 }}>
-            <Tooltip title="Logout">
-              <IconButton onClick={logout} sx={{ p: 0 }}>
-                <Logout />
-              </IconButton>
-            </Tooltip>
-          </Box>
-        </Toolbar>
-      </Container>
+          ))}
+        </Box>
+       
+        <Box
+            sx={{
+              ml: 'auto',
+              display: 'flex',
+              alignItems: 'center',
+              bgcolor: 'red',
+              px: 3,
+              py: 1,              
+              marginRight: -3, 
+            }}
+        >
+          <Typography variant="body1" sx={{ color: 'white', fontWeight: 'bold', mr: 1 }}>
+            Neethi Medical Lab
+          </Typography>
+          <IconButton onClick={logout} sx={{ color: 'white' }}>
+            <Logout />
+          </IconButton>
+        </Box>
+      </Toolbar>
     </AppBar>
   );
 }
+
 export default ResponsiveAppBar;

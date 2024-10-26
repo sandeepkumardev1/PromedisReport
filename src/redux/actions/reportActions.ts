@@ -1,5 +1,5 @@
 import * as api from "../api/reportsAPI";
-import { ExecuteStoredProcedure, getReportDetails } from "../api/reportsAPI";
+import { ExecuteStoredProcedure, getReportDetails, getTableValues } from "../api/reportsAPI";
 import { getMasterReports, setStoredProcedureResult } from "../reducers/reports";
 import { setReportDetails } from "../reducers/reports";
 export const getMasterReportsAction: any =  (securityId:string) => async (dispatch:any) => {
@@ -20,13 +20,27 @@ export const getReportDetailsAction: any = (securityId: string, reportId: string
       if (error) {
         console.error("Failed to fetch report details:", error);
       } else {
-        //dispatch(setReportDetails(data));
+        dispatch(setReportDetails(data));
         return { data }; 
       }
     } catch (error: any) {
       console.error("Unexpected error fetching report details:", error);
     }
   };
+
+  export const getTableValuesAction: any = (accessCode: string, tableName: string) => async (dispatch: any) => {
+    try {      
+      const { data, error } = await getTableValues(accessCode, tableName, "");
+      if (error) {
+        console.error("Failed to fetch table values:", error);
+      } else {        
+        return { data }; 
+      }
+    } catch (error: any) {
+      console.error("Unexpected error fetching table values:", error);
+    }
+  };
+  
 
   export const ExecuteStoredProcedureAction: any = (
     securityId: string,
