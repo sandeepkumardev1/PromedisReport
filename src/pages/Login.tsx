@@ -56,7 +56,7 @@ function Login() {
             </div>
           )}
           <div className="mt-6 flex items-center justify-center">
-              <CircleUserRound className="w-[4rem]"/>
+            <CircleUserRound className="w-[4rem]" />
           </div>
 
           <div className="relative mt-6 flex items-center">

@@ -1,7 +1,6 @@
 import * as api from "../api/reportsAPI";
 import {
   ExecuteStoredProcedure,
-  getReportDetails,
   getTableValues,
 } from "../api/reportsAPI";
 import {
@@ -24,12 +23,11 @@ export const getMasterReportsAction: any =
 export const getReportDetailsAction: any =
   (securityId: string, reportId: string) => async (dispatch: any) => {
     try {
-      const { data, error } = await getReportDetails(securityId, reportId);
+      const { data, error } = await api.getReportDetails(securityId, reportId);
       if (error) {
         console.error("Failed to fetch report details:", error);
       } else {
         dispatch(setReportDetails(data));
-        return { data };
       }
     } catch (error: any) {
       console.error("Unexpected error fetching report details:", error);
@@ -39,7 +37,7 @@ export const getReportDetailsAction: any =
 export const getTableValuesAction: any =
   (accessCode: string, tableName: string) => async (dispatch: any) => {
     try {
-      const { data, error } = await getTableValues(accessCode, tableName, "");
+      const { data, error } = await getTableValues(accessCode, tableName);
       if (error) {
         console.error("Failed to fetch table values:", error);
       } else {

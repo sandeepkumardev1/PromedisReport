@@ -5,23 +5,17 @@ import {
   getTableValuesAction,
 } from "../redux/actions/reportActions";
 import ResponsiveAppBar from "../components/AppBar";
-import {
-  MenuItem,
-  Select,
-  TextField,
-  Grid,
-  Paper,
-  Box,
-  Button,
-  FormControl,
-  InputLabel,
-} from "@mui/material";
+import { Paper, Box, Button } from "@mui/material";
 import dayjs from "dayjs";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 
 function Reports() {
   const dispatch = useDispatch();
   const accessCode = useSelector((state: any) => state.auth?.accessCode);
+  const reportName = useSelector((state: any) => state.report?.reportName);
+  const storedProcedure = useSelector(
+    (state: any) => state.report?.storedProcedure
+  );
   const reportDetails = useSelector(
     (state: any) => state.report?.selectedReportDetails
   );
@@ -40,7 +34,7 @@ function Reports() {
       ? Object.keys(report[0]).map((key) => ({
           field: key,
           headerName: key.replace(/_/g, " "),
-          width: 150,
+          width: 175,
         }))
       : [];
 
@@ -57,7 +51,27 @@ function Reports() {
         }
       });
     }
-    setReport(null)
+    setReport(null);
+    setFormValues({});
+
+    if(reportDetails){
+      var dateFields:any = new Object();
+      reportDetails.ReportParameters.map((field: any) => {
+        const {
+          ConditionName,
+          DefaultValue,
+          SPParameterName,
+        } = field;
+        const isDateField = ConditionName.toLowerCase().includes("date");
+        const defaultDateValue =
+        isDateField && DefaultValue ? getDefaultDate(DefaultValue) : "";
+
+        if(isDateField){
+          dateFields[SPParameterName] = defaultDateValue.split("-").reverse().join("-")
+        }
+      })
+        setFormValues(dateFields)
+     }
   }, [reportDetails]);
 
   const fetchValidValuesFromAPI = async (fieldName: string) => {
@@ -118,7 +132,7 @@ function Reports() {
 
   const fetchReports = async () => {
     let headersList = {
-      Accept: "*/*",  
+      Accept: "*/*",
       "Content-Type": "application/json",
     };
 
@@ -127,7 +141,7 @@ function Reports() {
     });
 
     let response = await fetch(
-      `/api/ReportsManagement.svc/rest/ExecuteStoredProcedureWith?securityID=${accessCode}&procedureName=Report_Collections_Report`,
+      `/api/ReportsManagement.svc/rest/ExecuteStoredProcedureWith?securityID=${accessCode}&procedureName=${storedProcedure}`,
       {
         method: "POST",
         body: bodyContent,
@@ -135,13 +149,13 @@ function Reports() {
       }
     );
 
-    let data:any = await response.text();
+    let data: any = await response.text();
     var test = JSON.parse(data);
 
-    data = JSON.parse(test).map((item:any,index:number)=>({
+    data = JSON.parse(test).map((item: any, index: number) => ({
       ...item,
-      id:index
-    }))
+      id: index,
+    }));
 
     setReport(data);
   };
@@ -167,20 +181,21 @@ function Reports() {
       switch (ControlType) {
         case "TEXTBOX":
           return (
-            <Grid item xs={4} key={ConditionName}>
-              <TextField
-                fullWidth
-                label={ConditionName}
+            <div className="col-md-2 mx-4">
+              <label className="fw-bold">{ConditionName}</label>
+              <input
                 type={isDateField ? "date" : "text"}
-                defaultValue={defaultDateValue||""}
-                onChange={(e) => {
+                key={reportName + SPParameterName}
+                defaultValue={defaultDateValue}
+                className="form-control m-1"
+                onChange={(e: any) => {
                   var value = isDateField
                     ? e.target.value.split("-").reverse().join("-")
                     : e.target.value;
                   handleInputChange(SPParameterName, value);
                 }}
               />
-            </Grid>
+            </div>
           );
 
         case "COMBOBOX":
@@ -189,24 +204,21 @@ function Reports() {
             : validValuesMap[ConditionName] || [];
 
           return (
-            <Grid item xs={4} key={ConditionName}>
-              <FormControl fullWidth>
-                <InputLabel>{ConditionName}</InputLabel>
-                <Select
-                  value={formValues[SPParameterName] ||""}
-                  onChange={(e) =>
-                    handleInputChange(SPParameterName, e.target.value)
-                  }
-                  label={ConditionName}
-                >
-                  {validOptions.map((option: any) => (
-                    <MenuItem key={option.value} value={option.value}>
-                      {option.label}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </Grid>
+            <div className="col-md-2 mx-4">
+              <label className="fw-bold">{ConditionName}</label>
+              <select
+                key={SPParameterName + reportName}
+                className="form-select m-1"
+                onChange={(e) =>
+                  handleInputChange(SPParameterName, e.target.value)
+                }
+              >
+                <option value="">Select</option>
+                {validOptions.map((item: any) => (
+                  <option value={item.value}>{item.label}</option>
+                ))}
+              </select>
+            </div>
           );
 
         default:
@@ -214,56 +226,54 @@ function Reports() {
       }
     });
   };
- 
-  const paginationModel = {page:0,pageSize:5}
+
+  const paginationModel = { page: 0, pageSize: 5 };
   return (
     <>
       <ResponsiveAppBar />
       <Paper sx={{ padding: 3 }}>
-        <Grid container spacing={2}>
-          {renderFormFields()}
-
-          <Grid item xs={12}>
-            <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 2 }}>
-              <Button
-                variant="contained"
-                color="primary"
-                sx={{ backgroundColor: "#007BFF" }}
-                onClick={fetchReports}
-              >
-                RUN
-              </Button>
-              <Button
-                variant="contained"
-                color="secondary"
-                sx={{ backgroundColor: "#FF0000" }}
-              >
-                PDF
-              </Button>
-              <Button
-                variant="contained"
-                color="success"
-                sx={{ backgroundColor: "#28A745" }}
-              >
-                EXCEL
-              </Button>
-            </Box>
-          </Grid>
-        </Grid>
-        {report?.length > 0 && (
-          <div className="mt-3">
-            <DataGrid
-              rows={report}
-              columns={columns}
-              initialState={{pagination:{paginationModel}}}
-              pageSizeOptions={[5, 10]}
-              columnVisibilityModel={{
-                id:false
-              }}
-            />
-          </div>
-        )}
+        <div className="row">{renderFormFields()}</div>
+        <div className="absolute left-[79rem] top-[6rem] d-flex justify-center w-[16rem]">
+          <h1 className="fw-bold text-1xl">{reportName}</h1>
+        </div>
+        <Box sx={{ display: "flex", gap: 2 }} className="justify-end">
+          <Button
+            variant="contained"
+            color="primary"
+            sx={{ backgroundColor: "#007BFF" }}
+            onClick={fetchReports}
+          >
+            RUN
+          </Button>
+          <Button
+            variant="contained"
+            color="secondary"
+            sx={{ backgroundColor: "#FF0000" }}
+          >
+            PDF
+          </Button>
+          <Button
+            variant="contained"
+            color="success"
+            sx={{ backgroundColor: "#28A745" }}
+          >
+            EXCEL
+          </Button>
+        </Box>
       </Paper>
+      {report?.length > 0 && (
+        <div className="m-3 mt-5">
+          <DataGrid
+            rows={report}
+            columns={columns}
+            initialState={{ pagination: { paginationModel } }}
+            pageSizeOptions={[5, 10]}
+            columnVisibilityModel={{
+              id: false,
+            }}
+          />
+        </div>
+      )}
     </>
   );
 }
