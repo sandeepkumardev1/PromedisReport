@@ -12,6 +12,7 @@ import { logoutAction } from '../redux/actions/authActions';
 import PopupState, { bindTrigger, bindMenu } from 'material-ui-popup-state';
 import secureLocalStorage from "react-secure-storage";
 import { getReportDetailsAction } from '../redux/actions/reportActions';
+import { setStoredProcedureName } from '../redux/reducers/reports';
 
 function ResponsiveAppBar() {
   const masterReport = useSelector((state: any) => state.report?.masterReport);
@@ -19,8 +20,9 @@ function ResponsiveAppBar() {
   const dispatch = useDispatch();
 
   const handleMenuClick = async (reportName: any, popupClose: () => void) => {
-    popupClose();
+    popupClose();    
     const reportId = reportName.ReportId;
+    dispatch(setStoredProcedureName(reportName.StoredProcedureName))
     await dispatch(getReportDetailsAction(accessCode, reportId));
   };
 

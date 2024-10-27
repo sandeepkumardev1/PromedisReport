@@ -22,6 +22,7 @@ import { DataGrid, GridColDef } from "@mui/x-data-grid";
 function Reports() {
   const dispatch = useDispatch();
   const accessCode = useSelector((state: any) => state.auth?.accessCode);
+  const StoredProcedureName = useSelector((state: any) => state.report?.storedProcedureName);
   const reportDetails = useSelector(
     (state: any) => state.report?.selectedReportDetails
   );
@@ -117,6 +118,7 @@ function Reports() {
   };
 
   const fetchReports = async () => {
+    debugger
     let headersList = {
       Accept: "*/*",  
       "Content-Type": "application/json",
@@ -127,7 +129,7 @@ function Reports() {
     });
 
     let response = await fetch(
-      `/api/ReportsManagement.svc/rest/ExecuteStoredProcedureWith?securityID=${accessCode}&procedureName=Report_Collections_Report`,
+      `/api/ReportsManagement.svc/rest/ExecuteStoredProcedureWith?securityID=${accessCode}&procedureName=${StoredProcedureName}`,
       {
         method: "POST",
         body: bodyContent,
