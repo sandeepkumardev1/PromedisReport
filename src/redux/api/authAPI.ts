@@ -28,7 +28,24 @@ export const getAccessCode = async (userData: any) => {
     };
     const response = await fetch(url, options);
     const data = await response.text();
-    return { error: null, data:JSON.parse(data) };
+    return { error: null, data: JSON.parse(data) };
+  } catch (error: any) {
+    return { error: error, data: null };
+  }
+};
+
+export const getLicensedName = async (securityId: string) => {
+  try {
+    const url = `/api/ReportsManagement.svc/rest/GetLicensedToName?securityID=${securityId}`;
+    const options = {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    };
+    const response = await fetch(url, options);
+    const data = await response.text();
+    return { error: null, data: JSON.parse(data) };
   } catch (error: any) {
     return { error: error, data: null };
   }

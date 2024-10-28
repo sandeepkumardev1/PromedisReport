@@ -4,6 +4,7 @@ const initialState = {
   userData: null,
   accessCode: null,
   signInError: null,
+  licensedName: null
 };
 
 const authSlice = createSlice({
@@ -19,6 +20,9 @@ const authSlice = createSlice({
     },
     setUserData: (state, action) => {
       state.userData = action.payload;
+    },
+    setLicensedName: (state, action) => {
+      state.licensedName = action.payload;
     },
     loginFail: (state, action) => {
       state.signInError = action.payload;
@@ -40,7 +44,8 @@ export const {
   loginFail,
   setAccessCode,
   setUserData,
-  clearMessage
+  clearMessage,
+  setLicensedName
 } = authSlice.actions;
 
 export default authSlice.reducer;

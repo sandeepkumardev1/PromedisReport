@@ -17,6 +17,7 @@ function ResponsiveAppBar() {
   const dispatch = useDispatch();
   const masterReport = useSelector((state: any) => state.report?.masterReport);
   const accessCode = useSelector((state: any) => state.auth?.accessCode);
+  const licensedName = useSelector((state: any) => state.auth?.licensedName);
 
   const handleMenuClick = async (report: any, popupClose: () => void) => {
     popupClose();
@@ -110,7 +111,7 @@ function ResponsiveAppBar() {
             variant="body1"
             sx={{ color: "white", fontWeight: "bold", mr: 1 }}
           >
-            Neethi Medical Lab
+          {licensedName}
           </Typography>
           <IconButton onClick={logout} sx={{ color: "white" }}>
             <Logout />

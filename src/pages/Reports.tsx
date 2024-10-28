@@ -8,6 +8,7 @@ import ResponsiveAppBar from "../components/AppBar";
 import { Paper, Box, Button } from "@mui/material";
 import dayjs from "dayjs";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
+import { exportToExcel, exportToPdf } from "../utils/utils";
 
 function Reports() {
   const dispatch = useDispatch();
@@ -54,24 +55,23 @@ function Reports() {
     setReport(null);
     setFormValues({});
 
-    if(reportDetails){
-      var dateFields:any = new Object();
+    if (reportDetails) {
+      var dateFields: any = new Object();
       reportDetails.ReportParameters.map((field: any) => {
-        const {
-          ConditionName,
-          DefaultValue,
-          SPParameterName,
-        } = field;
+        const { ConditionName, DefaultValue, SPParameterName } = field;
         const isDateField = ConditionName.toLowerCase().includes("date");
         const defaultDateValue =
-        isDateField && DefaultValue ? getDefaultDate(DefaultValue) : "";
+          isDateField && DefaultValue ? getDefaultDate(DefaultValue) : "";
 
-        if(isDateField){
-          dateFields[SPParameterName] = defaultDateValue.split("-").reverse().join("-")
+        if (isDateField) {
+          dateFields[SPParameterName] = defaultDateValue
+            .split("-")
+            .reverse()
+            .join("-");
         }
-      })
-        setFormValues(dateFields)
-     }
+      });
+      setFormValues(dateFields);
+    }
   }, [reportDetails]);
 
   const fetchValidValuesFromAPI = async (fieldName: string) => {
@@ -84,11 +84,10 @@ function Reports() {
         return item;
       });
       if (Array.isArray(arrayOfObjects)) {
-        return arrayOfObjects.map(
-          (item: { idCenter: number; CenterName: string }) => {
-            return { value: item.idCenter, label: item.CenterName };
-          }
-        );
+        return arrayOfObjects.map((item: any) => {
+          var values = Object.keys(item);
+          return { value: item[values[0]], label: item[values[1]] };
+        });
       } else {
         throw new Error("Expected an array but did not find one.");
       }
@@ -215,7 +214,9 @@ function Reports() {
               >
                 <option value="">Select</option>
                 {validOptions.map((item: any) => (
-                  <option value={item.value}>{item.label}</option>
+                  <option value={item.value} key={item.label}>
+                    {item.label}
+                  </option>
                 ))}
               </select>
             </div>
@@ -227,7 +228,15 @@ function Reports() {
     });
   };
 
-  const paginationModel = { page: 0, pageSize: 5 };
+  function downloadFile(format: string) {
+    if (format === "excel") {
+      exportToExcel(report, reportName);
+    } else {
+      exportToPdf(report, reportName);
+    }
+  }
+
+  const paginationModel = { page: 0, pageSize: Math.min(report?.length, 50) };
   return (
     <>
       <ResponsiveAppBar />
@@ -249,6 +258,8 @@ function Reports() {
             variant="contained"
             color="secondary"
             sx={{ backgroundColor: "#FF0000" }}
+            onClick={() => downloadFile('pdf')}
+            disabled={report == null || report?.length <= 0}
           >
             PDF
           </Button>
@@ -256,6 +267,8 @@ function Reports() {
             variant="contained"
             color="success"
             sx={{ backgroundColor: "#28A745" }}
+            onClick={ () => downloadFile('excel')}
+            disabled={report == null || report?.length <= 0}
           >
             EXCEL
           </Button>
