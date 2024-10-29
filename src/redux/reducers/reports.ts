@@ -4,7 +4,7 @@ const initialState = {
   masterReport: null,
   selectedReportDetails: null,
   storedProcedureResult: null,
-  reportName: null,
+  report: null,
   storedProcedure:null
 };
 
@@ -21,8 +21,8 @@ const reportSlice = createSlice({
     setStoredProcedureResult: (state, action) => {
       state.storedProcedureResult = action.payload;
     },
-    setReportName: (state, action) => {
-      state.reportName = action.payload;
+    setReport: (state, action) => {
+      state.report = action.payload;
     },
     setStoredProcedure: (state, action) => {
       state.storedProcedure = action.payload;
@@ -34,7 +34,7 @@ export const {
   getMasterReports,
   setReportDetails,
   setStoredProcedureResult,
-  setReportName,
+  setReport,
   setStoredProcedure
 } = reportSlice.actions;
 

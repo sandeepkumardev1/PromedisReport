@@ -5,7 +5,7 @@ import {
   getTableValuesAction,
 } from "../redux/actions/reportActions";
 import ResponsiveAppBar from "../components/AppBar";
-import { Paper, Box, Button } from "@mui/material";
+import {Box, Button } from "@mui/material";
 import dayjs from "dayjs";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import { exportToExcel, exportToPdf } from "../utils/utils";
@@ -13,7 +13,7 @@ import { exportToExcel, exportToPdf } from "../utils/utils";
 function Reports() {
   const dispatch = useDispatch();
   const accessCode = useSelector((state: any) => state.auth?.accessCode);
-  const reportName = useSelector((state: any) => state.report?.reportName);
+  const _report = useSelector((state: any) => state.report?.report);
   const storedProcedure = useSelector(
     (state: any) => state.report?.storedProcedure
   );
@@ -36,6 +36,8 @@ function Reports() {
           field: key,
           headerName: key.replace(/_/g, " "),
           width: 175,
+          headerClassName: 'bg-slate-300',
+          flex:1
         }))
       : [];
 
@@ -163,14 +165,15 @@ function Reports() {
     if (!reportDetails || !reportDetails.ReportParameters) {
       return null;
     }
-
-    return reportDetails.ReportParameters.map((field: any) => {
+    var parameters = reportDetails.ReportParameters;
+    return parameters.map((field: any) => {
       const {
         ConditionName,
         ControlType,
         DefaultValue,
         ValidValues,
         SPParameterName,
+        MandatoryFlag,
       } = field;
 
       const isDateField = ConditionName.toLowerCase().includes("date");
@@ -181,10 +184,13 @@ function Reports() {
         case "TEXTBOX":
           return (
             <div className="col-md-2 mx-4">
-              <label className="fw-bold">{ConditionName}</label>
+              <label className="text-[0.9rem]">
+                {ConditionName}
+                {MandatoryFlag == "Y" && <span className="text-danger">*</span>}
+              </label>
               <input
                 type={isDateField ? "date" : "text"}
-                key={reportName + SPParameterName}
+                key={_report.ReportName + SPParameterName}
                 defaultValue={defaultDateValue}
                 className="form-control m-1"
                 onChange={(e: any) => {
@@ -204,15 +210,22 @@ function Reports() {
 
           return (
             <div className="col-md-2 mx-4">
-              <label className="fw-bold">{ConditionName}</label>
+              <label className="text-[0.9rem]">{ConditionName}</label>
               <select
-                key={SPParameterName + reportName}
+                key={SPParameterName + _report.ReportName}
                 className="form-select m-1"
                 onChange={(e) =>
                   handleInputChange(SPParameterName, e.target.value)
                 }
               >
-                <option value="">Select</option>
+                <option
+                  value={
+                    typeof validOptions?.at(0)?.value == "string" ? "ALL" : 0
+                  }
+                  selected={MandatoryFlag == "N"}
+                >
+                  Select
+                </option>
                 {validOptions.map((item: any) => (
                   <option value={item.value} key={item.label}>
                     {item.label}
@@ -230,9 +243,13 @@ function Reports() {
 
   function downloadFile(format: string) {
     if (format === "excel") {
-      exportToExcel(report, reportName);
+      exportToExcel(report, _report?.ReportName);
     } else {
-      exportToPdf(report, reportName);
+      exportToPdf(
+        report,
+        _report?.ReportName,
+        _report.PDFPrintOrientation.toLowerCase()
+      );
     }
   }
 
@@ -240,12 +257,15 @@ function Reports() {
   return (
     <>
       <ResponsiveAppBar />
-      <Paper sx={{ padding: 3 }}>
+      <div className="mt-2 mb-4">
         <div className="row">{renderFormFields()}</div>
-        <div className="absolute left-[79rem] top-[6rem] d-flex justify-center w-[16rem]">
-          <h1 className="fw-bold text-1xl">{reportName}</h1>
+        <div className="absolute left-[79rem] top-[5rem] d-flex justify-center w-[16rem]">
+          <h1 className="fw-bold text-1xl">{_report?.ReportName}</h1>
         </div>
-        <Box sx={{ display: "flex", gap: 2 }} className="justify-end">
+        <Box
+          sx={{ display: "flex", gap: 2 }}
+          className="justify-end mx-4"
+        >
           <Button
             variant="contained"
             color="primary"
@@ -258,7 +278,7 @@ function Reports() {
             variant="contained"
             color="secondary"
             sx={{ backgroundColor: "#FF0000" }}
-            onClick={() => downloadFile('pdf')}
+            onClick={() => downloadFile("pdf")}
             disabled={report == null || report?.length <= 0}
           >
             PDF
@@ -267,15 +287,15 @@ function Reports() {
             variant="contained"
             color="success"
             sx={{ backgroundColor: "#28A745" }}
-            onClick={ () => downloadFile('excel')}
+            onClick={() => downloadFile("excel")}
             disabled={report == null || report?.length <= 0}
           >
             EXCEL
           </Button>
         </Box>
-      </Paper>
+      </div>
       {report?.length > 0 && (
-        <div className="m-3 mt-5">
+        <div className="m-3 mt-3">
           <DataGrid
             rows={report}
             columns={columns}

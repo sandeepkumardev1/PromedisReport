@@ -13,9 +13,12 @@ export const exportToExcel = (rows: any, reportName: string) => {
   XLSX.writeFile(workbook, `${reportName}.xlsx`, { compression: true });
 };
 
-export const exportToPdf = (rows: any, reportName: string) => {
+export const exportToPdf = (rows: any, reportName: string,orientation:"landscape"|"portrait") => {
   try {
-    const doc = new jsPDF();
+    const doc = new jsPDF({
+      orientation: orientation,
+      
+    });
     const tableData = rows.map(({ id, ...rest }: any) => Object.values(rest));
     const tableHeaders = Object.keys(rows[0]).filter((x) => x !== "id");;
     autoTable(doc, {
