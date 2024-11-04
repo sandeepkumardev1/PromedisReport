@@ -2,10 +2,10 @@ import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
   masterReport: null,
-  selectedReportDetails: null,
-  storedProcedureResult: null,
+  reportDetails: null,
   report: null,
-  storedProcedure:null
+  storedProcedure: null,
+  reportData: null,
 };
 
 const reportSlice = createSlice({
@@ -16,10 +16,8 @@ const reportSlice = createSlice({
       state.masterReport = action.payload;
     },
     setReportDetails: (state, action) => {
-      state.selectedReportDetails = action.payload;
-    },
-    setStoredProcedureResult: (state, action) => {
-      state.storedProcedureResult = action.payload;
+      ` `;
+      state.reportDetails = action.payload;
     },
     setReport: (state, action) => {
       state.report = action.payload;
@@ -27,15 +25,18 @@ const reportSlice = createSlice({
     setStoredProcedure: (state, action) => {
       state.storedProcedure = action.payload;
     },
+    setReportData: (state, action) => {
+      state.reportData = action.payload;
+    },
   },
 });
 
 export const {
   getMasterReports,
   setReportDetails,
-  setStoredProcedureResult,
   setReport,
-  setStoredProcedure
+  setStoredProcedure,
+  setReportData,
 } = reportSlice.actions;
 
 export default reportSlice.reducer;

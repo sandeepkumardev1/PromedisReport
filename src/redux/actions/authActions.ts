@@ -8,6 +8,7 @@ import {
 } from "../reducers/auth";
 import * as api from "../api/authAPI";
 import secureLocalStorage from "react-secure-storage";
+import { generateUUID } from "../../utils/utils";
 
 export const initializeAuth = () => async (dispatch: any) => {
   const accessCode = JSON.parse(
@@ -38,7 +39,7 @@ export const signInAction: any =
           "accessCode",
           JSON.stringify(accessCode.data)
         );
-        sessionStorage.setItem("sessionId", crypto.randomUUID());
+        sessionStorage.setItem("sessionId", generateUUID());
         sessionStorage.setItem("licensedName", licensedName.data);
         dispatch(loginSuccess(data));
         dispatch(setAccessCode(accessCode.data));
@@ -46,7 +47,7 @@ export const signInAction: any =
         navigate("/reports");
       }
     } catch (error: any) {
-      await dispatch(loginFail(error.message));
+      dispatch(loginFail(error.message));
       navigate("/");
     }
   };

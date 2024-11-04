@@ -6,7 +6,6 @@ import Reports from "./pages/Reports";
 
 function App() {
   const userData = useSelector((state:any) => state.auth?.userData);
-
   return (
     <Routes>
        <Route

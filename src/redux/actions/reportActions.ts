@@ -1,12 +1,5 @@
 import * as api from "../api/reportsAPI";
-import {
-  ExecuteStoredProcedure,
-  getTableValues,
-} from "../api/reportsAPI";
-import {
-  getMasterReports,
-  setStoredProcedureResult,
-} from "../reducers/reports";
+import { getMasterReports, setReportData } from "../reducers/reports";
 import { setReportDetails } from "../reducers/reports";
 
 export const getMasterReportsAction: any =
@@ -14,10 +7,13 @@ export const getMasterReportsAction: any =
     try {
       const { data, error } = await api.getMasterReports(securityId);
       if (error) {
+        console.error("Error:", error);
       } else {
         dispatch(getMasterReports(data));
       }
-    } catch (error: any) {}
+    } catch (error: any) {
+      console.error("Error:", error);
+    }
   };
 
 export const getReportDetailsAction: any =
@@ -35,9 +31,9 @@ export const getReportDetailsAction: any =
   };
 
 export const getTableValuesAction: any =
-  (accessCode: string, tableName: string) => async (dispatch: any) => {
+  async (accessCode: string, tableName: string) => {
     try {
-      const { data, error } = await getTableValues(accessCode, tableName);
+      const { data, error } = await api.getTableValues(accessCode, tableName);
       if (error) {
         console.error("Failed to fetch table values:", error);
       } else {
@@ -48,27 +44,21 @@ export const getTableValuesAction: any =
     }
   };
 
-export const ExecuteStoredProcedureAction: any =
-  (securityId: string, procedureName: string, requestBody: any) =>
+export const getReportDataAction: any =
+  (procedureParams: any, securityId: string, storedProcedure: string) =>
   async (dispatch: any) => {
     try {
-      const { data, error } = await ExecuteStoredProcedure(
+      const { data, error } = await api.getReportData(
+        procedureParams,
         securityId,
-        procedureName,
-        requestBody
+        storedProcedure
       );
       if (error) {
-        console.error("Failed to fetch report details:", error);
+        console.error("Error:", error);
       } else {
-        const parsedData = JSON.parse(data);
-        const dataWithId = parsedData.map((row: any, index: number) => ({
-          id: index,
-          ...row,
-        }));
-        dispatch(setStoredProcedureResult(dataWithId));
-        return { data: dataWithId };
+        dispatch(setReportData(data));
       }
     } catch (error: any) {
-      console.error("Unexpected error fetching report details:", error);
+      console.error("Error:", error);
     }
   };
