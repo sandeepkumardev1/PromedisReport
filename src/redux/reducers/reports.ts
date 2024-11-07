@@ -16,7 +16,6 @@ const reportSlice = createSlice({
       state.masterReport = action.payload;
     },
     setReportDetails: (state, action) => {
-      ` `;
       state.reportDetails = action.payload;
     },
     setReport: (state, action) => {
@@ -28,6 +27,11 @@ const reportSlice = createSlice({
     setReportData: (state, action) => {
       state.reportData = action.payload;
     },
+    clearReportsData:(state) => {
+      state.reportData = null;
+      state.reportDetails = null;
+      state.masterReport = null;
+    }
   },
 });
 
@@ -37,6 +41,7 @@ export const {
   setReport,
   setStoredProcedure,
   setReportData,
+  clearReportsData
 } = reportSlice.actions;
 
 export default reportSlice.reducer;

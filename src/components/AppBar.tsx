@@ -82,7 +82,7 @@ function ResponsiveAppBar() {
                           }
                           sx={{
                             fontFamily: "Arial",
-                            fontSize: "10px",
+                            fontSize: "12px",
                             fontWeight: 400,
                             color: "#000",
                           }}

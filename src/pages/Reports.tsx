@@ -26,7 +26,7 @@ function Reports() {
           field: key,
           headerName: key.replace(/_/g, " "),
           width: 175,
-          headerClassName: "bg-slate-300",
+          headerClassName: "bg-slate-300 h-[0rem]",
           flex: 1,
         }))
       : [];
@@ -35,8 +35,8 @@ function Reports() {
     page: 0,
     pageSize: Math.min(reportData?.length, 50),
   };
-  // const res = Object.groupBy(test.sort((a,b) => a.Center.localeCompare(b.Center)),({Center}) => Center)
-  // Object.values(res).flat()
+  // const reportData1 = reportData?.reduce((ob:any, item:any) => ({...ob, [report.GroupingColumnName]: [...ob[report.GroupingColumnName] ?? [], item]}), {})
+  // const value = Object.values(reportData1 ?? []).flat()
 
   return (
     <>
@@ -48,6 +48,7 @@ function Reports() {
             <DataGrid
               rows={reportData}
               columns={columns}
+              rowHeight={40}
               initialState={{
                 pagination: { paginationModel },
               }}

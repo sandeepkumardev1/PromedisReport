@@ -9,6 +9,7 @@ import {
 import * as api from "../api/authAPI";
 import secureLocalStorage from "react-secure-storage";
 import { generateUUID } from "../../utils/utils";
+import { clearReportsData } from "../reducers/reports";
 
 export const initializeAuth = () => async (dispatch: any) => {
   const accessCode = JSON.parse(
@@ -56,4 +57,5 @@ export const logoutAction: any = () => async (dispatch: any) => {
   secureLocalStorage.removeItem("profile");
   secureLocalStorage.removeItem("accessCode");
   dispatch(logoutSuccess());
+  dispatch(clearReportsData())
 };

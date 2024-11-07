@@ -1,6 +1,5 @@
-import { Box, Button } from "@mui/material";
+import { Button } from "@mui/material";
 import { exportToExcel, exportToPdf, getDefaultDate } from "../utils/utils";
-// import generatePDF from "react-to-pdf";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -14,7 +13,7 @@ type FilterProps = {
   targetRef?: any;
 };
 
-function Filter({ reportDetails}: FilterProps) {
+function Filter({ reportDetails }: FilterProps) {
   const dispatch = useDispatch();
   const [filter, setFilter] = useState<any>({});
   const accessCode = useSelector((state: any) => state.auth?.accessCode);
@@ -63,6 +62,7 @@ function Filter({ reportDetails}: FilterProps) {
       });
       setFilter(dateFields);
     }
+    setDefaultValue()
   }, [reportDetails]);
 
   const fetchValidValuesFromAPI = async (fieldName: string) => {
@@ -79,7 +79,7 @@ function Filter({ reportDetails}: FilterProps) {
       console.error("Error fetching valid values", error);
     }
   };
-
+  
   var ReportFilter = reportDetails.ReportParameters.map((field: any) => {
     const {
       ConditionName,
@@ -121,7 +121,6 @@ function Filter({ reportDetails}: FilterProps) {
         const validOptions: any = ValidValues
           ? parseValidValues(ValidValues)
           : validValues[ConditionName] || [];
-
         return (
           <div className="col-md-2 mx-1">
             <label className="text-[0.9rem]">{ConditionName}</label>
@@ -132,14 +131,16 @@ function Filter({ reportDetails}: FilterProps) {
                 handleInputChange(SPParameterName, e.target.value)
               }
             >
-              <option
-                value={
-                  typeof validOptions?.at(0)?.value == "string" ? "ALL" : 0
-                }
-                selected={MandatoryFlag == "N"}
-              >
-                Select
-              </option>
+              {!ValidValues && (
+                <option
+                  value={
+                    typeof validOptions?.at(0)?.value == "string" ? "ALL" : 0
+                  }
+                  selected={MandatoryFlag == "N"}
+                >
+                  Select
+                </option>
+              )}
               {validOptions.map((item: any) => (
                 <option value={item.value} key={item.label}>
                   {item.label}
@@ -152,6 +153,29 @@ function Filter({ reportDetails}: FilterProps) {
         return null;
     }
   });
+
+  function setDefaultValue(){
+    var defaultOptions:any = new Object();
+    reportDetails.ReportParameters.map((field: any) => {
+      const {
+        ConditionName,
+        ControlType,
+        ValidValues,
+        SPParameterName,
+      } = field;
+
+      if(ControlType === 'COMBOBOX'){
+        const validOptions: any = ValidValues
+        ? parseValidValues(ValidValues)
+        : validValues[ConditionName] || [];
+        defaultOptions[SPParameterName] = ValidValues ? validOptions[0].value:0
+      }
+    })
+    setFilter((prevValues: any) => ({
+      ...prevValues,
+      ...defaultOptions
+    }));
+  }
 
   function parseValidValues(validValues: string) {
     return validValues.split(",").map((v: string) => {
@@ -178,11 +202,13 @@ function Filter({ reportDetails}: FilterProps) {
 
   return (
     <div>
-      <div className="d-flex mx-2">{ReportFilter}</div>
-      <div className="absolute left-[80rem] top-[5rem] d-flex justify-center w-[16rem]">
-        <h1 className="fw-bold text-1xl">{report?.ReportName}</h1>
+      <div className="d-flex mx-2 mt-4">
+        {ReportFilter}
+        <div className="absolute left-[79.8rem] top-[4rem] d-flex justify-center w-[16rem]">
+          <h1 className="fw-bold">{report?.ReportName}</h1>
+        </div>
       </div>
-      <Box sx={{ display: "flex", gap: 2 }} className="justify-end mx-4">
+      <div className="absolute left-[79rem] top-[6.4rem] d-flex justify-center w-[16rem]">
         <Button
           variant="contained"
           color="primary"
@@ -194,9 +220,9 @@ function Filter({ reportDetails}: FilterProps) {
         <Button
           variant="contained"
           color="secondary"
+          className="mx-2"
           sx={{ backgroundColor: "#FF0000" }}
-            onClick={() => downloadFile("pdf")}
-          // onClick={() => generatePDF(targetRef, { filename: "page.pdf" })}
+          onClick={() => downloadFile("pdf")}
           disabled={reportData == null || reportData?.length <= 0}
         >
           PDF
@@ -210,7 +236,7 @@ function Filter({ reportDetails}: FilterProps) {
         >
           EXCEL
         </Button>
-      </Box>
+      </div>
     </div>
   );
 }

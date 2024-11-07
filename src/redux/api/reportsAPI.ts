@@ -49,21 +49,20 @@ export const getReportData = async (
     const url = `${BASE_URL}/ReportsManagement.svc/rest/ExecuteStoredProcedureWith?securityID=${securityId}&procedureName=${storedProcedure}`;
     const options = {
       method: "POST",
-      body:JSON.stringify({
+      body: JSON.stringify({
         parameters: JSON.stringify(procedureParams),
       }),
-      headers:{
-        "Accept": "*/*",
-        "Content-Type": "application/json"
-      } 
+      headers: {
+        "Content-Type": "application/json",
+      },
     };
-    const response = await fetch(url,options);
+    const response = await fetch(url, options);
     const data = JSON.parse(await response.text());
     const reportData = JSON.parse(data).map((item: any, index: number) => ({
       ...item,
       id: index,
     }));
-    return { error: null, data:reportData };
+    return { error: null, data: reportData };
   } catch (error) {
     return { error, data: null };
   }
