@@ -196,8 +196,8 @@ function Filter({ reportDetails }: FilterProps) {
     }
   }
 
-  async function getReportData() {
-    await dispatch(getReportDataAction(filter, accessCode, storedProcedure));
+  async function getReportData() {    
+    await dispatch(getReportDataAction(filter, accessCode, storedProcedure,report.GroupingColumnName));
   }
 
   return (

@@ -45,13 +45,14 @@ export const getTableValuesAction: any =
   };
 
 export const getReportDataAction: any =
-  (procedureParams: any, securityId: string, storedProcedure: string) =>
+  (procedureParams: any, securityId: string, storedProcedure: string,groupingColumnName:string) =>
   async (dispatch: any) => {
     try {
       const { data, error } = await api.getReportData(
         procedureParams,
         securityId,
-        storedProcedure
+        storedProcedure,
+        groupingColumnName
       );
       if (error) {
         console.error("Error:", error);

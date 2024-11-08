@@ -10,6 +10,7 @@ function Reports() {
   const targetRef = useRef<any>();
   const accessCode = useSelector((state: any) => state.auth?.accessCode);
   const reportData = useSelector((state: any) => state.report?.reportData);
+  const groupColumn = useSelector((state: any) => state.report?.report);
   const reportDetails = useSelector(
     (state: any) => state.report?.reportDetails
   );
@@ -28,6 +29,7 @@ function Reports() {
           width: 175,
           headerClassName: "bg-slate-300 h-[0rem]",
           flex: 1,
+          cellClassName: /Amt|Amount|Discount|Balance/i.test(key) ? "text-end" : "",
         }))
       : [];
 
@@ -46,17 +48,24 @@ function Reports() {
         <div className="m-3 mt-3 d-flex justify-center" ref={targetRef}>
           {reportData && reportData.length > 0 ? (
             <DataGrid
-              rows={reportData}
-              columns={columns}
-              rowHeight={40}
-              initialState={{
-                pagination: { paginationModel },
-              }}
-              pageSizeOptions={[5, 10]}
-              columnVisibilityModel={{
-                id: false,
-              }}
-            />
+            rows={reportData}
+            columns={columns}
+            rowHeight={40}
+            getRowClassName={(params) => {             
+              
+              console.log("Current row:", params.row);
+          
+              return params.row[groupColumn.GroupingColumnName]?.includes("Total") ? "bg-blue-300" : "";
+            }}
+            initialState={{
+              pagination: { paginationModel },
+            }}
+            pageSizeOptions={[5, 10]}
+            columnVisibilityModel={{
+              id: false,
+            }}
+          />
+          
           ) : (
             <div className="bg-white shadow-md rounded-lg p-6 max-w-md w-full text-center">
               <h2 className="text-2xl font-semibold mb-4 text-gray-800">
