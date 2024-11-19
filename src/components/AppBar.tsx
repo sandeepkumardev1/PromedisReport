@@ -11,7 +11,7 @@ import { Logout } from "@mui/icons-material";
 import { logoutAction } from "../redux/actions/authActions";
 import PopupState, { bindTrigger, bindMenu } from "material-ui-popup-state";
 import { getReportDetailsAction } from "../redux/actions/reportActions";
-import { setReport, setStoredProcedure } from "../redux/reducers/reports";
+import { hideLoader, setReport, setStoredProcedure } from "../redux/reducers/reports";
 
 function ResponsiveAppBar() {
   const dispatch = useDispatch();
@@ -24,6 +24,7 @@ function ResponsiveAppBar() {
     dispatch(getReportDetailsAction(accessCode, report.ReportId));
     dispatch(setReport(report))
     dispatch(setStoredProcedure(report.StoredProcedureName))
+    dispatch(hideLoader())
   };
 
   const logout = () => {

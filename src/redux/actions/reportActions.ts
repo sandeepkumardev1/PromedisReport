@@ -56,6 +56,7 @@ export const getReportDataAction: any =
       );
       if (error) {
         console.error("Error:", error);
+        dispatch(setReportData(null));
       } else {
         dispatch(setReportData(data));
       }

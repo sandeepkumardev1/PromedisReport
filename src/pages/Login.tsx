@@ -2,9 +2,10 @@ import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import ButtonLoadingSpinner from "../components/ButtonLoadingSpinner";
-import { CircleUserRound, X } from "lucide-react";
+import { X } from "lucide-react";
 import { signInAction } from "../redux/actions/authActions";
 import { clearMessage } from "../redux/reducers/auth";
+import AccountCircle from "@mui/icons-material/AccountCircle";
 
 function Login() {
   const [loading, setLoading] = useState(false);
@@ -56,7 +57,7 @@ function Login() {
             </div>
           )}
           <div className="mt-6 flex items-center justify-center">
-            <CircleUserRound className="w-[4rem]" />
+            <AccountCircle className="text-slate-600" style={{fontSize:35}}/>
           </div>
 
           <div className="relative mt-6 flex items-center">

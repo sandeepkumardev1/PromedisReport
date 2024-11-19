@@ -1,3 +1,16 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+body::-webkit-scrollbar{
+    display: none;
+}
+
+.data-grid::-webkit-scrollbar {
+    display: none;
+}
+
+.MuiDataGrid-filler,
+.MuiDataGrid-scrollbarFiller{
+    background-color: rgb(203,213,225) !important;
+}

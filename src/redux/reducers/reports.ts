@@ -6,6 +6,7 @@ const initialState = {
   report: null,
   storedProcedure: null,
   reportData: null,
+  showLoader:false
 };
 
 const reportSlice = createSlice({
@@ -27,6 +28,12 @@ const reportSlice = createSlice({
     setReportData: (state, action) => {
       state.reportData = action.payload;
     },
+    showLoader:(state) => {
+      state.showLoader = true
+    },
+    hideLoader:(state) => {
+      state.showLoader = false
+    },
     clearReportsData:(state) => {
       state.reportData = null;
       state.reportDetails = null;
@@ -41,7 +48,9 @@ export const {
   setReport,
   setStoredProcedure,
   setReportData,
-  clearReportsData
+  clearReportsData,
+  showLoader,
+  hideLoader
 } = reportSlice.actions;
 
 export default reportSlice.reducer;

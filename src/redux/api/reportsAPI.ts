@@ -58,20 +58,22 @@ export const getReportData = async (
       },
     };
     const response = await fetch(url, options);
-    debugger
+
     const data = JSON.parse(await response.text());
     let reportData = JSON.parse(data).map((item: any, index: number) => {
       const formattedItem = { ...item, id: index };     
       
       Object.keys(formattedItem).forEach((key) => {
         if (typeof formattedItem[key] === "number") {
-          formattedItem[key] = parseFloat(formattedItem[key].toFixed(2));
+          formattedItem[key] = parseFloat(`${formattedItem[key]}`).toFixed(2);
         }
       });
       
       return formattedItem;
     });
 
+    let index = JSON.parse(data).length
+    
     if (GroupingColumnName) {
       const groupedData = reportData.reduce((acc: any, item: any) => {
         const group = item[GroupingColumnName] || "Ungrouped";
@@ -83,19 +85,40 @@ export const getReportData = async (
       reportData = [];
       for (const group in groupedData) {
         const groupItems = groupedData[group];
-        const totalRow: any = { [GroupingColumnName]: `${group} Total` };
+        const totalRow: any = { [GroupingColumnName]: `${group} Total`,id:99999 };
 
         Object.keys(groupItems[0]).forEach((key) => {
-          if (typeof groupItems[0][key] === "number") {
-            totalRow[key] = groupItems.reduce((sum: number, item: any) => sum + item[key], 0).toFixed(2);
+          if (!isNaN(groupItems[0][key]) && /Amt|Amount|Discount|Balance/i.test(key)) {
+            var total = groupItems.reduce((sum: number, item: any) => sum + parseFloat(item[key]), 0)
+            totalRow[key] = parseFloat(`${total}`).toFixed(2);
+          }else{
+            totalRow[key] = ""
           }
         });
-
-        reportData = [...reportData, ...groupItems, totalRow];
+        totalRow[GroupingColumnName] = `${groupItems[0][GroupingColumnName]} Total`
+        totalRow['id'] = index
+        reportData = [...reportData, ...groupItems,totalRow];
+        index += 1
       }
     }
 
-    return { error: null, data: reportData };
+    let grandTotal:any = new Object()
+    const result = JSON.parse(data);
+    let isAmountFieldExist = false
+
+    Object.keys(result[0]).map((key:any) => {
+      if (!isNaN(result[0][key]) && /Amt|Amount|Discount|Balance/i.test(key)) {
+        var total = result.reduce((sum: number, item: any) => sum + (item[key] ? parseFloat(item[key]):0), 0)
+        grandTotal[key] = parseFloat(`${total}`).toFixed(2);
+        isAmountFieldExist = true
+      }else{
+        grandTotal[key] = ""
+      }
+    })
+    grandTotal[Object.keys(result[0])[0]] = 'Grand Total'
+    grandTotal['id'] = index + 1
+    reportData = isAmountFieldExist ?  [...reportData,grandTotal] : reportData
+    return { error: null, data:reportData};
   } catch (error) {
     return { error, data: null };
   }
